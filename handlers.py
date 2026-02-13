@@ -200,7 +200,7 @@ async def handle_voice(message: Message, bot: Bot) -> None:
 
         # Get tutor response
         tutor_reply = await get_tutor_response(
-            transcription, user.dialect, user.script,
+            transcription, user.dialect, user.script, user.ui_language,
         )
 
         # Send text response
@@ -249,7 +249,7 @@ async def handle_text(message: Message) -> None:
     try:
         # Get tutor response for the text
         tutor_reply = await get_tutor_response(
-            message.text, user.dialect, user.script,
+            message.text, user.dialect, user.script, user.ui_language,
         )
 
         # Edit processing message with the response
