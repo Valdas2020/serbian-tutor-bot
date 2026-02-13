@@ -86,18 +86,24 @@ async def cb_language(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("script:"))
 async def cb_script(callback: CallbackQuery) -> None:
-    """Handle script selection → show dialect choice."""
+    """Handle script selection. During onboarding → show dialect. From settings → just confirm."""
     script = callback.data.split(":")[1]
     user = await update_user_script(callback.from_user.id, script)
     lang = user.ui_language
 
     key = f"script_{script}"
     await callback.message.edit_text(t(key, lang))
-    await callback.message.answer(
-        t("choose_dialect", lang),
-        parse_mode="Markdown",
-        reply_markup=dialect_keyboard(lang),
-    )
+
+    # If user already has a dialect set, this is a settings change — just confirm
+    # If no dialect yet (onboarding), show dialect selection next
+    if user.dialect:
+        await callback.message.answer(t("send_voice_hint", lang))
+    else:
+        await callback.message.answer(
+            t("choose_dialect", lang),
+            parse_mode="Markdown",
+            reply_markup=dialect_keyboard(lang),
+        )
     await callback.answer()
 
 

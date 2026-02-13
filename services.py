@@ -57,14 +57,16 @@ You are a local from Budva or Podgorica. Use authentic Montenegrin forms:
 """
 
 
-SCRIPT_CYRILLIC = """Write ALL your Serbian text in **Cyrillic** script (Ћирилица).
+SCRIPT_CYRILLIC = """CRITICAL: Write ALL Serbian text in **Cyrillic** script (Ћирилица).
 Example: "Добар дан! Како сте? Ја сам ваш наставник."
-NEVER use Latin letters for Serbian words in your main response.
+NEVER use Latin letters (a-z) for Serbian words. Always use Cyrillic (а-я, ђ, ж, љ, њ, ћ, ч, ш, џ).
 """
 
-SCRIPT_LATIN = """Write ALL your Serbian text in **Latin** script (Latinica).
+SCRIPT_LATIN = """CRITICAL: Write ALL Serbian text in **Latin** script (Latinica).
 Example: "Dobar dan! Kako ste? Ja sam vaš nastavnik."
-NEVER use Cyrillic letters for Serbian words in your main response.
+Example Ijekavica: "Đe si, more? Lijepo je danas. Hajdemo na kafu."
+NEVER use Cyrillic letters (а-я) for Serbian words. Always use Latin (a-z, č, ć, đ, š, ž, lj, nj, dž).
+This is extremely important — the student is learning to READ Latin script. Every single Serbian word must be in Latin letters.
 """
 
 
