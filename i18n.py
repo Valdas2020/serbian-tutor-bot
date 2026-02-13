@@ -1,0 +1,173 @@
+from __future__ import annotations
+
+TEXTS: dict[str, dict[str, str]] = {
+    "welcome": {
+        "ru": (
+            "Zdravo! Dobrodošli!\n\n"
+            "Я — ваш репетитор сербского языка.\n"
+            "Отправляйте мне голосовые сообщения на сербском, "
+            "и я помогу вам с произношением и грамматикой.\n\n"
+            "Для начала выберите язык интерфейса:"
+        ),
+        "en": (
+            "Zdravo! Dobrodošli!\n\n"
+            "I'm your Serbian language tutor.\n"
+            "Send me voice messages in Serbian, "
+            "and I'll help you with pronunciation and grammar.\n\n"
+            "First, choose your interface language:"
+        ),
+    },
+    "choose_language": {
+        "ru": "Выберите язык интерфейса:",
+        "en": "Choose interface language:",
+    },
+    "language_set": {
+        "ru": "Язык интерфейса установлен: Русский",
+        "en": "Interface language set: English",
+    },
+    "choose_script": {
+        "ru": (
+            "Выберите письменность:\n\n"
+            "🔤 *Кириллица* — Ћирилица\n"
+            "Пример: Добар дан, како сте?\n\n"
+            "🔡 *Латиница* — Latinica\n"
+            "Пример: Dobar dan, kako ste?"
+        ),
+        "en": (
+            "Choose writing script:\n\n"
+            "🔤 *Cyrillic* — Ћирилица\n"
+            "Example: Добар дан, како сте?\n\n"
+            "🔡 *Latin* — Latinica\n"
+            "Example: Dobar dan, kako ste?"
+        ),
+    },
+    "script_cyrillic": {
+        "ru": "Письменность: Кириллица (Ћирилица) 🔤",
+        "en": "Script set: Cyrillic (Ћирилица) 🔤",
+    },
+    "script_latin": {
+        "ru": "Письменность: Латиница (Latinica) 🔡",
+        "en": "Script set: Latin (Latinica) 🔡",
+    },
+    "choose_dialect": {
+        "ru": (
+            "Теперь выберите диалект сербского:\n\n"
+            "🇷🇸 *Екавица* — стандартный сербский (Белград)\n"
+            "Примеры: лепо, девојка, река\n\n"
+            "🇲🇪 *Ијекавица* — черногорский/боснийский вариант\n"
+            "Примеры: лијепо, дјевојка, ријека"
+        ),
+        "en": (
+            "Now choose a Serbian dialect:\n\n"
+            "🇷🇸 *Ekavica* — Standard Serbian (Belgrade)\n"
+            "Examples: lepo, devojka, reka\n\n"
+            "🇲🇪 *Ijekavica* — Montenegrin/Bosnian style\n"
+            "Examples: lijepo, djevojka, rijeka"
+        ),
+    },
+    "dialect_ekavica": {
+        "ru": "Отлично! Диалект установлен: Екавица (стандартный сербский) 🇷🇸\n\nТеперь отправьте мне голосовое сообщение на сербском!",
+        "en": "Great! Dialect set: Ekavica (Standard Serbian) 🇷🇸\n\nNow send me a voice message in Serbian!",
+    },
+    "dialect_ijekavica": {
+        "ru": "Отлично! Диалект установлен: Ијекавица (черногорский вариант) 🇲🇪\n\nТеперь отправьте мне голосовое сообщение на сербском!",
+        "en": "Great! Dialect set: Ijekavica (Montenegrin style) 🇲🇪\n\nNow send me a voice message in Serbian!",
+    },
+    "processing": {
+        "ru": "⏳ Обрабатываю ваше сообщение...",
+        "en": "⏳ Processing your message...",
+    },
+    "transcription": {
+        "ru": "🎤 *Распознанный текст:*\n_{text}_",
+        "en": "🎤 *Transcribed text:*\n_{text}_",
+    },
+    "error_general": {
+        "ru": "Произошла ошибка. Попробуйте ещё раз.",
+        "en": "An error occurred. Please try again.",
+    },
+    "error_no_voice": {
+        "ru": "Пожалуйста, отправьте голосовое сообщение.",
+        "en": "Please send a voice message.",
+    },
+    "error_transcription": {
+        "ru": "Не удалось распознать речь. Попробуйте записать сообщение ещё раз.",
+        "en": "Could not transcribe speech. Please try recording again.",
+    },
+    "settings": {
+        "ru": "⚙️ *Настройки*\n\nДиалект: {dialect}\nПисьменность: {script}\nЯзык интерфейса: {lang}\n\nЧто хотите изменить?",
+        "en": "⚙️ *Settings*\n\nDialect: {dialect}\nScript: {script}\nInterface language: {lang}\n\nWhat would you like to change?",
+    },
+    "help": {
+        "ru": (
+            "🎓 *Как пользоваться ботом:*\n\n"
+            "1. Отправьте голосовое сообщение на сербском языке\n"
+            "2. Бот распознает вашу речь\n"
+            "3. Репетитор ответит на сербском и укажет ошибки\n"
+            "4. Вы получите озвученный ответ\n\n"
+            "*Команды:*\n"
+            "/start — начать сначала\n"
+            "/settings — настройки диалекта и языка\n"
+            "/help — эта справка"
+        ),
+        "en": (
+            "🎓 *How to use the bot:*\n\n"
+            "1. Send a voice message in Serbian\n"
+            "2. The bot will transcribe your speech\n"
+            "3. The tutor will respond in Serbian and point out mistakes\n"
+            "4. You'll receive a voiced response\n\n"
+            "*Commands:*\n"
+            "/start — start over\n"
+            "/settings — dialect and language settings\n"
+            "/help — this help message"
+        ),
+    },
+    "btn_russian": {
+        "ru": "🇷🇺 Русский",
+        "en": "🇷🇺 Русский",
+    },
+    "btn_english": {
+        "ru": "🇬🇧 English",
+        "en": "🇬🇧 English",
+    },
+    "btn_ekavica": {
+        "ru": "🇷🇸 Екавица",
+        "en": "🇷🇸 Ekavica",
+    },
+    "btn_ijekavica": {
+        "ru": "🇲🇪 Ијекавица",
+        "en": "🇲🇪 Ijekavica",
+    },
+    "btn_cyrillic": {
+        "ru": "🔤 Кириллица",
+        "en": "🔤 Cyrillic",
+    },
+    "btn_latin": {
+        "ru": "🔡 Латиница",
+        "en": "🔡 Latin",
+    },
+    "btn_change_dialect": {
+        "ru": "Изменить диалект",
+        "en": "Change dialect",
+    },
+    "btn_change_script": {
+        "ru": "Изменить письменность",
+        "en": "Change script",
+    },
+    "btn_change_language": {
+        "ru": "Изменить язык",
+        "en": "Change language",
+    },
+    "send_voice_hint": {
+        "ru": "Отправьте мне голосовое сообщение на сербском, и я помогу вам! Также можно отправить текст.",
+        "en": "Send me a voice message in Serbian and I'll help you! You can also send text.",
+    },
+}
+
+
+def t(key: str, lang: str = "ru", **kwargs: str) -> str:
+    """Get translated text by key and language."""
+    text_dict = TEXTS.get(key, {})
+    text = text_dict.get(lang, text_dict.get("ru", f"[{key}]"))
+    if kwargs:
+        text = text.format(**kwargs)
+    return text

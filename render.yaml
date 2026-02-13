@@ -1,0 +1,24 @@
+services:
+  - type: worker
+    name: serbian-tutor-bot
+    runtime: docker
+    repo: https://github.com/val-makkas/serbian-tutor-bot
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://routellm.abacus.ai/v1
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CHAT_MODEL
+        value: gpt-4o
+      - key: WHISPER_MODEL
+        value: whisper-1
+      - key: TTS_MODEL
+        value: tts-1
+      - key: TTS_VOICE
+        value: alloy
+      - key: LOG_LEVEL
+        value: INFO
