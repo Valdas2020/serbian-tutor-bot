@@ -248,8 +248,8 @@ async def handle_voice(message: Message, bot: Bot) -> None:
 
         try:
             tts_file = await synthesize_speech(tutor_reply)
-            audio_input = FSInputFile(tts_file, filename="tutor_response.mp3")
-            await message.answer_audio(audio_input, title="Srpski tutor")
+            audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
+            await message.answer_voice(audio_input)
         except Exception:
             logger.exception("Error synthesizing/sending audio")
 
@@ -289,8 +289,8 @@ async def handle_text(message: Message) -> None:
 
         try:
             tts_file = await synthesize_speech(tutor_reply)
-            audio_input = FSInputFile(tts_file, filename="tutor_response.mp3")
-            await message.answer_audio(audio_input, title="Srpski tutor")
+            audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
+            await message.answer_voice(audio_input)
         except Exception:
             logger.exception("Error synthesizing/sending audio")
 
