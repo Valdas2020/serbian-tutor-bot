@@ -186,11 +186,11 @@ async def synthesize_speech(text: str) -> Path:
         model=TTS_MODEL,
         voice=TTS_VOICE,
         input=serbian_text,
-        response_format="opus",
+        response_format="mp3",
         speed=0.9,
     )
 
-    tmp = tempfile.NamedTemporaryFile(suffix=".ogg", delete=False)
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
     tmp.write(response.content)
     tmp.close()
 
