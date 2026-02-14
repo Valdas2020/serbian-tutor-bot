@@ -23,7 +23,18 @@ TTS_MODEL = os.getenv("TTS_MODEL", "tts-1")
 TTS_VOICE = os.getenv("TTS_VOICE", "alloy")
 
 # Database
-DB_URL = "sqlite+aiosqlite:///serbian_tutor.db"
+DB_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///serbian_tutor.db")
+# Render gives postgres://, SQLAlchemy needs postgresql+asyncpg://
+if DB_URL.startswith("postgres://"):
+    DB_URL = DB_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+
+# Admin
+ADMIN_ID = int(os.getenv("ADMIN_ID", "485544391"))
+
+# Promo codes: code -> days of pro access
+PROMO_CODES: dict[str, int] = {
+    "SHABBAT": 60,
+}
 
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

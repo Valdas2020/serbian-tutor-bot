@@ -8,11 +8,14 @@ from pathlib import Path
 from aiogram import Router, Bot, F
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command
+from aiogram.filters.command import CommandObject
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
+from config import ADMIN_ID, PROMO_CODES
 from database import (
     get_or_create_user, reset_user_settings, update_user_dialect,
     update_user_language, update_user_script, update_user_style,
+    log_voice_message, activate_promo, get_admin_stats,
 )
 from i18n import t
 from keyboards import (
@@ -34,9 +37,12 @@ def _user_configured(user) -> bool:
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message) -> None:
-    """Handle /start — welcome and language selection (resets settings)."""
-    await reset_user_settings(message.from_user.id)
+async def cmd_start(message: Message, command: CommandObject) -> None:
+    """Handle /start — welcome and language selection (resets settings).
+    Supports deep links: /start CHURCH -> ref_source='CHURCH'
+    """
+    ref_source = command.args or None
+    await reset_user_settings(message.from_user.id, ref_source=ref_source)
     await message.answer(
         t("welcome", "ru"),
         reply_markup=language_keyboard(),
@@ -70,6 +76,32 @@ async def cmd_settings(message: Message) -> None:
         parse_mode="Markdown",
         reply_markup=settings_keyboard(lang),
     )
+
+
+@router.message(Command("admin_stats"))
+async def cmd_admin_stats(message: Message) -> None:
+    """Handle /admin_stats — show bot statistics (admin only)."""
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    stats = await get_admin_stats()
+
+    ref_lines = []
+    for source, count in stats["ref_stats"]:
+        ref_lines.append(f"  {source} — {count}")
+    ref_text = "\n".join(ref_lines) if ref_lines else "  (нет данных)"
+
+    text = (
+        f"📊 *Статистика бота*\n\n"
+        f"👥 Всего юзеров: {stats['total']}\n"
+        f"📈 Новых за 24ч: {stats['new_24h']}\n"
+        f"📅 Новых за 7 дней: {stats['new_7d']}\n"
+        f"⭐ Pro-юзеров: {stats['pro_count']}\n\n"
+        f"📣 *Топ источников:*\n{ref_text}\n\n"
+        f"🎤 Голосовых сегодня: {stats['voices_today']}"
+    )
+
+    await message.answer(text, parse_mode="Markdown")
 
 
 # --- Callbacks: Language ---
@@ -247,6 +279,9 @@ async def handle_voice(message: Message, bot: Bot) -> None:
 
         await message.answer(tutor_reply)
 
+        # Log voice interaction
+        await log_voice_message(message.from_user.id)
+
         try:
             tts_file = await synthesize_speech(tutor_reply)
             audio_input = FSInputFile(tts_file, filename="srpski_tutor.mp3")
@@ -269,9 +304,22 @@ async def handle_voice(message: Message, bot: Bot) -> None:
 
 @router.message(F.text)
 async def handle_text(message: Message) -> None:
-    """Handle plain text messages — treat as Serbian text input."""
+    """Handle plain text messages — treat as Serbian text input or promo code."""
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
+
+    # Check for promo code
+    code = message.text.strip().upper()
+    if code in PROMO_CODES:
+        days = PROMO_CODES[code]
+        await activate_promo(message.from_user.id, days)
+        promo_msg = (
+            f"🎉 Pro-доступ активирован на {days} дней!"
+            if lang == "ru"
+            else f"🎉 Pro access activated for {days} days!"
+        )
+        await message.answer(promo_msg)
+        return
 
     if not _user_configured(user):
         await message.answer(t("error_not_configured", lang))
