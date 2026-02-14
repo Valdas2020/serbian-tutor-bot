@@ -11,16 +11,22 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from database import (
     get_or_create_user, update_user_dialect,
-    update_user_language, update_user_script,
+    update_user_language, update_user_script, update_user_style,
 )
 from i18n import t
 from keyboards import (
-    language_keyboard, script_keyboard, dialect_keyboard, settings_keyboard,
+    language_keyboard, script_keyboard, dialect_keyboard,
+    style_keyboard, settings_keyboard,
 )
 from services import transcribe_voice, get_tutor_response, synthesize_speech
 
 logger = logging.getLogger(__name__)
 router = Router()
+
+
+def _user_configured(user) -> bool:
+    """Check if user completed all onboarding steps."""
+    return bool(user.dialect and user.script and user.style)
 
 
 # --- Commands ---
@@ -52,12 +58,14 @@ async def cmd_settings(message: Message) -> None:
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
-    dialect_display = "Екавица / Ekavica 🇷🇸" if user.dialect == "ekavica" else "Ијекавица / Ijekavica 🇲🇪"
-    script_display = "Кириллица 🔤" if user.script == "cyrillic" else "Латиница 🔡"
+    dialect_display = "Екавица 🇷🇸" if user.dialect == "ekavica" else "Ијекавица 🇲🇪" if user.dialect else "—"
+    script_display = "Кириллица 🔤" if user.script == "cyrillic" else "Латиница 🔡" if user.script else "—"
+    style_map = {"formal": "📚 Книжно", "casual": "🍺 Как в кафане", "beginner": "🐣 Просто"}
+    style_display = style_map.get(user.style, "—")
     lang_display = "Русский 🇷🇺" if lang == "ru" else "English 🇬🇧"
 
     await message.answer(
-        t("settings", lang, dialect=dialect_display, script=script_display, lang=lang_display),
+        t("settings", lang, dialect=dialect_display, script=script_display, style=style_display, lang=lang_display),
         parse_mode="Markdown",
         reply_markup=settings_keyboard(lang),
     )
@@ -86,7 +94,7 @@ async def cb_language(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("script:"))
 async def cb_script(callback: CallbackQuery) -> None:
-    """Handle script selection. During onboarding → show dialect. From settings → just confirm."""
+    """Handle script selection. Onboarding → dialect. Settings → confirm."""
     script = callback.data.split(":")[1]
     user = await update_user_script(callback.from_user.id, script)
     lang = user.ui_language
@@ -94,9 +102,7 @@ async def cb_script(callback: CallbackQuery) -> None:
     key = f"script_{script}"
     await callback.message.edit_text(t(key, lang))
 
-    # If user already has a dialect set, this is a settings change — just confirm
-    # If no dialect yet (onboarding), show dialect selection next
-    if user.dialect:
+    if _user_configured(user):
         await callback.message.answer(t("send_voice_hint", lang))
     else:
         await callback.message.answer(
@@ -112,12 +118,36 @@ async def cb_script(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("dialect:"))
 async def cb_dialect(callback: CallbackQuery) -> None:
-    """Handle dialect selection."""
+    """Handle dialect selection. Onboarding → style. Settings → confirm."""
     dialect = callback.data.split(":")[1]
     user = await update_user_dialect(callback.from_user.id, dialect)
     lang = user.ui_language
 
     key = f"dialect_{dialect}"
+    await callback.message.edit_text(t(key, lang))
+
+    if _user_configured(user):
+        await callback.message.answer(t("send_voice_hint", lang))
+    else:
+        await callback.message.answer(
+            t("choose_style", lang),
+            parse_mode="Markdown",
+            reply_markup=style_keyboard(lang),
+        )
+    await callback.answer()
+
+
+# --- Callbacks: Style ---
+
+
+@router.callback_query(F.data.startswith("style:"))
+async def cb_style(callback: CallbackQuery) -> None:
+    """Handle style selection."""
+    style = callback.data.split(":")[1]
+    user = await update_user_style(callback.from_user.id, style)
+    lang = user.ui_language
+
+    key = f"style_{style}"
     await callback.message.edit_text(t(key, lang))
     await callback.answer()
 
@@ -127,33 +157,39 @@ async def cb_dialect(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "settings:dialect")
 async def cb_settings_dialect(callback: CallbackQuery) -> None:
-    """Handle settings: change dialect."""
     user = await get_or_create_user(callback.from_user.id)
-    lang = user.ui_language
     await callback.message.edit_text(
-        t("choose_dialect", lang),
+        t("choose_dialect", user.ui_language),
         parse_mode="Markdown",
-        reply_markup=dialect_keyboard(lang),
+        reply_markup=dialect_keyboard(user.ui_language),
     )
     await callback.answer()
 
 
 @router.callback_query(F.data == "settings:script")
 async def cb_settings_script(callback: CallbackQuery) -> None:
-    """Handle settings: change script."""
     user = await get_or_create_user(callback.from_user.id)
-    lang = user.ui_language
     await callback.message.edit_text(
-        t("choose_script", lang),
+        t("choose_script", user.ui_language),
         parse_mode="Markdown",
-        reply_markup=script_keyboard(lang),
+        reply_markup=script_keyboard(user.ui_language),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "settings:style")
+async def cb_settings_style(callback: CallbackQuery) -> None:
+    user = await get_or_create_user(callback.from_user.id)
+    await callback.message.edit_text(
+        t("choose_style", user.ui_language),
+        parse_mode="Markdown",
+        reply_markup=style_keyboard(user.ui_language),
     )
     await callback.answer()
 
 
 @router.callback_query(F.data == "settings:language")
 async def cb_settings_language(callback: CallbackQuery) -> None:
-    """Handle settings: change language."""
     await callback.message.edit_text(
         t("choose_language", "ru"),
         reply_markup=language_keyboard(),
@@ -170,49 +206,38 @@ async def handle_voice(message: Message, bot: Bot) -> None:
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
-    if not user.dialect:
-        await message.answer(
-            t("choose_dialect", lang),
-            parse_mode="Markdown",
-            reply_markup=dialect_keyboard(lang),
-        )
+    if not _user_configured(user):
+        await message.answer(t("error_not_configured", lang))
         return
 
-    # Send "processing" message
     processing_msg = await message.answer(t("processing", lang))
 
     voice_file = None
     tts_file = None
 
     try:
-        # Download voice file
         file = await bot.get_file(message.voice.file_id)
         voice_file = Path(tempfile.mktemp(suffix=".ogg"))
         await bot.download_file(file.file_path, voice_file)
 
-        # Transcribe
         transcription = await transcribe_voice(voice_file)
 
         if not transcription:
             await processing_msg.edit_text(t("error_transcription", lang))
             return
 
-        # Show transcription
         safe_transcription = transcription.replace("_", "\\_").replace("*", "\\*")
         await processing_msg.edit_text(
             t("transcription", lang, text=safe_transcription),
             parse_mode="Markdown",
         )
 
-        # Get tutor response
         tutor_reply = await get_tutor_response(
-            transcription, user.dialect, user.script, user.ui_language,
+            transcription, user.dialect, user.script, user.ui_language, user.style,
         )
 
-        # Send text response
         await message.answer(tutor_reply)
 
-        # Synthesize and send audio response
         try:
             tts_file = await synthesize_speech(tutor_reply)
             audio_input = FSInputFile(tts_file, filename="tutor_response.mp3")
@@ -224,7 +249,6 @@ async def handle_voice(message: Message, bot: Bot) -> None:
         logger.exception("Error processing voice message")
         await message.answer(t("error_general", lang))
     finally:
-        # Cleanup temp files
         if voice_file and voice_file.exists():
             os.unlink(voice_file)
         if tts_file and tts_file.exists():
@@ -240,12 +264,8 @@ async def handle_text(message: Message) -> None:
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
-    if not user.dialect:
-        await message.answer(
-            t("choose_dialect", lang),
-            parse_mode="Markdown",
-            reply_markup=dialect_keyboard(lang),
-        )
+    if not _user_configured(user):
+        await message.answer(t("error_not_configured", lang))
         return
 
     processing_msg = await message.answer(t("processing", lang))
@@ -253,15 +273,12 @@ async def handle_text(message: Message) -> None:
     tts_file = None
 
     try:
-        # Get tutor response for the text
         tutor_reply = await get_tutor_response(
-            message.text, user.dialect, user.script, user.ui_language,
+            message.text, user.dialect, user.script, user.ui_language, user.style,
         )
 
-        # Edit processing message with the response
         await processing_msg.edit_text(tutor_reply)
 
-        # Synthesize and send audio response
         try:
             tts_file = await synthesize_speech(tutor_reply)
             audio_input = FSInputFile(tts_file, filename="tutor_response.mp3")

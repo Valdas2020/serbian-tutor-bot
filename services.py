@@ -70,12 +70,38 @@ This is extremely important — the student is learning to READ Latin script. Ev
 """
 
 
-def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: str = "ru") -> str:
+STYLE_FORMAL = """Communication style: **Formal / Literary**.
+Speak in proper, grammatically perfect Serbian. Use full sentences, polite forms (Vi/Ви), literary vocabulary.
+Sound like a university professor or a news anchor. Avoid slang, contractions, and colloquialisms.
+"""
+
+STYLE_CASUAL = """Communication style: **Casual / Kafana talk**.
+Speak like you're sitting in a kafana (кафана) with a friend over rakija.
+Use informal "ti" (ти), slang, colloquial expressions, humor, and casual shortcuts.
+Drop some common filler words like "bre" (бре), "ba" (ба), "ma" (ма), "ajde" (ајде).
+Be relaxed, funny, warm — like a real buddy helping out.
+"""
+
+STYLE_BEGINNER = """Communication style: **Simple / Beginner-friendly**.
+The student is a COMPLETE BEGINNER. Use VERY simple language:
+- Short sentences (5-8 words max)
+- Basic vocabulary only (A1-A2 level)
+- Repeat key words for reinforcement
+- Always provide translation of your Serbian words in parentheses
+- Speak slowly and clearly, as if to a child learning their first words
+- Use lots of encouragement
+"""
+
+
+def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: str = "ru", style: str = "casual") -> str:
     dialect_name = "Ijekavica (Montenegrin)" if dialect == "ijekavica" else "Ekavica (Standard Serbian)"
     dialect_instr = DIALECT_IJEKAVICA if dialect == "ijekavica" else DIALECT_EKAVICA
     script_name = "Latin (Latinica)" if script == "latin" else "Cyrillic (Ћирилица)"
     script_instr = SCRIPT_LATIN if script == "latin" else SCRIPT_CYRILLIC
     explanation_lang = "Russian" if ui_language == "ru" else "English"
+
+    style_map = {"formal": STYLE_FORMAL, "casual": STYLE_CASUAL, "beginner": STYLE_BEGINNER}
+    style_instr = style_map.get(style, STYLE_CASUAL)
 
     return SYSTEM_PROMPT_TEMPLATE.format(
         dialect_name=dialect_name,
@@ -83,7 +109,7 @@ def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: st
         script_name=script_name,
         script_instructions=script_instr,
         explanation_language=explanation_lang,
-    )
+    ) + "\n" + style_instr
 
 
 async def transcribe_voice(file_path: str | Path) -> str:
@@ -105,10 +131,11 @@ async def get_tutor_response(
     dialect: str,
     script: str = "cyrillic",
     ui_language: str = "ru",
+    style: str = "casual",
     conversation_history: list[dict[str, str]] | None = None,
 ) -> str:
     """Get tutor response from LLM via RouteLLM/Abacus API."""
-    system_prompt = _build_system_prompt(dialect, script, ui_language)
+    system_prompt = _build_system_prompt(dialect, script, ui_language, style)
 
     messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
 

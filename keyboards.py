@@ -53,6 +53,29 @@ def dialect_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
     )
 
 
+def style_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
+    """Keyboard for choosing communication style."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=t("btn_formal", lang), callback_data="style:formal"
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=t("btn_casual", lang), callback_data="style:casual"
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=t("btn_beginner", lang), callback_data="style:beginner"
+                ),
+            ],
+        ]
+    )
+
+
 def settings_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
     """Keyboard for settings menu."""
     return InlineKeyboardMarkup(
@@ -67,6 +90,12 @@ def settings_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
                 InlineKeyboardButton(
                     text=t("btn_change_script", lang),
                     callback_data="settings:script",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=t("btn_change_style", lang),
+                    callback_data="settings:style",
                 ),
             ],
             [

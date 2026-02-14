@@ -51,14 +51,14 @@ TEXTS: dict[str, dict[str, str]] = {
     },
     "choose_dialect": {
         "ru": (
-            "Теперь выберите диалект сербского:\n\n"
+            "Выберите диалект сербского:\n\n"
             "🇷🇸 *Екавица* — стандартный сербский (Белград)\n"
             "Примеры: лепо, девојка, река\n\n"
             "🇲🇪 *Ијекавица* — черногорский/боснийский вариант\n"
             "Примеры: лијепо, дјевојка, ријека"
         ),
         "en": (
-            "Now choose a Serbian dialect:\n\n"
+            "Choose a Serbian dialect:\n\n"
             "🇷🇸 *Ekavica* — Standard Serbian (Belgrade)\n"
             "Examples: lepo, devojka, reka\n\n"
             "🇲🇪 *Ijekavica* — Montenegrin/Bosnian style\n"
@@ -66,12 +66,38 @@ TEXTS: dict[str, dict[str, str]] = {
         ),
     },
     "dialect_ekavica": {
-        "ru": "Отлично! Диалект установлен: Екавица (стандартный сербский) 🇷🇸\n\nТеперь отправьте мне голосовое сообщение на сербском!",
-        "en": "Great! Dialect set: Ekavica (Standard Serbian) 🇷🇸\n\nNow send me a voice message in Serbian!",
+        "ru": "Диалект: Екавица (стандартный сербский) 🇷🇸",
+        "en": "Dialect: Ekavica (Standard Serbian) 🇷🇸",
     },
     "dialect_ijekavica": {
-        "ru": "Отлично! Диалект установлен: Ијекавица (черногорский вариант) 🇲🇪\n\nТеперь отправьте мне голосовое сообщение на сербском!",
-        "en": "Great! Dialect set: Ijekavica (Montenegrin style) 🇲🇪\n\nNow send me a voice message in Serbian!",
+        "ru": "Диалект: Ијекавица (черногорский вариант) 🇲🇪",
+        "en": "Dialect: Ijekavica (Montenegrin style) 🇲🇪",
+    },
+    "choose_style": {
+        "ru": (
+            "Последний шаг! Как мне с вами общаться?\n\n"
+            "📚 *Книжно* — грамотная, литературная речь\n"
+            "🍺 *Как в кафане* — живой разговорный язык, сленг\n"
+            "🐣 *Просто, как с новичком* — короткие фразы, базовая лексика"
+        ),
+        "en": (
+            "Last step! How should I talk to you?\n\n"
+            "📚 *Formal* — proper literary speech\n"
+            "🍺 *Like in a kafana* — casual, slang, street talk\n"
+            "🐣 *Simple, like a beginner* — short phrases, basic vocabulary"
+        ),
+    },
+    "style_formal": {
+        "ru": "Стиль: Книжная речь 📚\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
+        "en": "Style: Formal speech 📚\n\nAll set! Send a voice message or text in Serbian.",
+    },
+    "style_casual": {
+        "ru": "Стиль: Как в кафане 🍺\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
+        "en": "Style: Kafana talk 🍺\n\nAll set! Send a voice message or text in Serbian.",
+    },
+    "style_beginner": {
+        "ru": "Стиль: Просто, как с новичком 🐣\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
+        "en": "Style: Simple beginner mode 🐣\n\nAll set! Send a voice message or text in Serbian.",
     },
     "processing": {
         "ru": "⏳ Обрабатываю ваше сообщение...",
@@ -93,9 +119,13 @@ TEXTS: dict[str, dict[str, str]] = {
         "ru": "Не удалось распознать речь. Попробуйте записать сообщение ещё раз.",
         "en": "Could not transcribe speech. Please try recording again.",
     },
+    "error_not_configured": {
+        "ru": "Сначала пройдите настройку: /start",
+        "en": "Please complete setup first: /start",
+    },
     "settings": {
-        "ru": "⚙️ *Настройки*\n\nДиалект: {dialect}\nПисьменность: {script}\nЯзык интерфейса: {lang}\n\nЧто хотите изменить?",
-        "en": "⚙️ *Settings*\n\nDialect: {dialect}\nScript: {script}\nInterface language: {lang}\n\nWhat would you like to change?",
+        "ru": "⚙️ *Настройки*\n\nДиалект: {dialect}\nПисьменность: {script}\nСтиль: {style}\nЯзык интерфейса: {lang}\n\nЧто хотите изменить?",
+        "en": "⚙️ *Settings*\n\nDialect: {dialect}\nScript: {script}\nStyle: {style}\nInterface language: {lang}\n\nWhat would you like to change?",
     },
     "help": {
         "ru": (
@@ -145,6 +175,18 @@ TEXTS: dict[str, dict[str, str]] = {
         "ru": "🔡 Латиница",
         "en": "🔡 Latin",
     },
+    "btn_formal": {
+        "ru": "📚 Книжно",
+        "en": "📚 Formal",
+    },
+    "btn_casual": {
+        "ru": "🍺 Как в кафане",
+        "en": "🍺 Kafana style",
+    },
+    "btn_beginner": {
+        "ru": "🐣 Просто, как с новичком",
+        "en": "🐣 Simple / Beginner",
+    },
     "btn_change_dialect": {
         "ru": "Изменить диалект",
         "en": "Change dialect",
@@ -152,6 +194,10 @@ TEXTS: dict[str, dict[str, str]] = {
     "btn_change_script": {
         "ru": "Изменить письменность",
         "en": "Change script",
+    },
+    "btn_change_style": {
+        "ru": "Изменить стиль общения",
+        "en": "Change communication style",
     },
     "btn_change_language": {
         "ru": "Изменить язык",
