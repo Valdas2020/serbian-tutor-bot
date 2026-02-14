@@ -187,7 +187,7 @@ async def synthesize_speech(text: str) -> Path:
         voice=TTS_VOICE,
         input=serbian_text,
         response_format="mp3",
-        speed=0.85,
+        speed=0.8,
     )
 
     tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
