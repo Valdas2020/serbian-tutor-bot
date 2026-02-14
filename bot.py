@@ -5,6 +5,7 @@ import signal
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.types import BotCommand
 
 from config import BOT_TOKEN, setup_logging
 from database import init_db
@@ -43,7 +44,15 @@ async def main() -> None:
     # Delete webhook & drop pending updates before starting polling
     # This ensures clean state after a deploy
     await bot.delete_webhook(drop_pending_updates=True)
-    logger.info("Webhook cleared, starting polling...")
+
+    # Register bot commands so they appear in Telegram's menu
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Start over / Начать сначала"),
+        BotCommand(command="settings", description="Settings / Настройки"),
+        BotCommand(command="help", description="Help / Справка"),
+    ])
+
+    logger.info("Webhook cleared, commands registered, starting polling...")
 
     # Start polling
     logger.info("Bot is running.")

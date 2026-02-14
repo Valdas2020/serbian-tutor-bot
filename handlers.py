@@ -10,7 +10,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from database import (
-    get_or_create_user, update_user_dialect,
+    get_or_create_user, reset_user_settings, update_user_dialect,
     update_user_language, update_user_script, update_user_style,
 )
 from i18n import t
@@ -34,8 +34,8 @@ def _user_configured(user) -> bool:
 
 @router.message(CommandStart())
 async def cmd_start(message: Message) -> None:
-    """Handle /start — welcome and language selection."""
-    await get_or_create_user(message.from_user.id)
+    """Handle /start — welcome and language selection (resets settings)."""
+    await reset_user_settings(message.from_user.id)
     await message.answer(
         t("welcome", "ru"),
         reply_markup=language_keyboard(),
@@ -76,16 +76,20 @@ async def cmd_settings(message: Message) -> None:
 
 @router.callback_query(F.data.startswith("lang:"))
 async def cb_language(callback: CallbackQuery) -> None:
-    """Handle language selection → show script choice."""
+    """Handle language selection. Onboarding → script. Settings → confirm."""
     lang = callback.data.split(":")[1]
-    await update_user_language(callback.from_user.id, lang)
+    user = await update_user_language(callback.from_user.id, lang)
 
     await callback.message.edit_text(t("language_set", lang))
-    await callback.message.answer(
-        t("choose_script", lang),
-        parse_mode="Markdown",
-        reply_markup=script_keyboard(lang),
-    )
+
+    if _user_configured(user):
+        await callback.message.answer(t("send_voice_hint", lang))
+    else:
+        await callback.message.answer(
+            t("choose_script", lang),
+            parse_mode="Markdown",
+            reply_markup=script_keyboard(lang),
+        )
     await callback.answer()
 
 
@@ -149,6 +153,10 @@ async def cb_style(callback: CallbackQuery) -> None:
 
     key = f"style_{style}"
     await callback.message.edit_text(t(key, lang))
+
+    # After settings change, show hint if fully configured
+    if _user_configured(user):
+        await callback.message.answer(t("send_voice_hint", lang))
     await callback.answer()
 
 

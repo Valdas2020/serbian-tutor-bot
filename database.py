@@ -48,6 +48,25 @@ async def get_or_create_user(telegram_id: int) -> User:
         return user
 
 
+async def reset_user_settings(telegram_id: int) -> User:
+    """Reset all user settings for re-onboarding."""
+    async with async_session() as session:
+        result = await session.execute(
+            select(User).where(User.telegram_id == telegram_id)
+        )
+        user = result.scalar_one_or_none()
+        if user is None:
+            user = User(telegram_id=telegram_id)
+            session.add(user)
+        else:
+            user.dialect = ""
+            user.script = ""
+            user.style = ""
+        await session.commit()
+        await session.refresh(user)
+        return user
+
+
 async def update_user_dialect(telegram_id: int, dialect: str) -> User:
     async with async_session() as session:
         result = await session.execute(
