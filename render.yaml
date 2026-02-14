@@ -17,8 +17,8 @@ services:
       - key: WHISPER_MODEL
         value: whisper-1
       - key: TTS_MODEL
-        value: tts-1
+        value: tts-1-hd
       - key: TTS_VOICE
-        value: alloy
+        value: nova
       - key: LOG_LEVEL
         value: INFO
