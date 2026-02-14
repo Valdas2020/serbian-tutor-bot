@@ -6,7 +6,7 @@ services:
   - type: worker
     name: serbian-tutor-bot
     runtime: docker
-    repo: https://github.com/val-makkas/serbian-tutor-bot
+    repo: https://github.com/Valdas2020/serbian-tutor-bot
     envVars:
       - key: DATABASE_URL
         fromDatabase:
