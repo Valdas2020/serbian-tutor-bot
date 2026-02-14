@@ -35,10 +35,11 @@ Rules:
 - Keep your responses conversational and natural — as if you are chatting with a friend who is learning the language.
 - Encourage the student and praise their effort.
 - If you provide translations or explanations inline, put them in parentheses in {explanation_language}.
-- After your main response in Serbian, add a section called "---\\n📝 Ispravke / Исправке" (Corrections).
+- After your main response in Serbian, add a section called "---\\n📝 {corrections_header}" (Corrections).
   In this section, explain any grammar, vocabulary, or pronunciation mistakes the student made.
   Write ALL corrections and explanations ONLY in {explanation_language}. Do NOT use any other language for explanations.
-  If there are no mistakes, write "Одлично! Нема грешака. / Отлично! Ошибок нет."
+  Serbian words in the corrections section must also use the chosen script ({script_name}).
+  If there are no mistakes, write "{no_mistakes_text}"
 - If the transcribed text seems garbled or nonsensical (Whisper errors), try to guess what the student meant and respond accordingly, noting what you think they meant.
 """
 
@@ -103,12 +104,21 @@ def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: st
     style_map = {"formal": STYLE_FORMAL, "casual": STYLE_CASUAL, "beginner": STYLE_BEGINNER}
     style_instr = style_map.get(style, STYLE_CASUAL)
 
+    if script == "latin":
+        corrections_header = "Ispravke"
+        no_mistakes_text = "Odlično! Nema grešaka. / Отлично! Ошибок нет."
+    else:
+        corrections_header = "Исправке"
+        no_mistakes_text = "Одлично! Нема грешака. / Отлично! Ошибок нет."
+
     return SYSTEM_PROMPT_TEMPLATE.format(
         dialect_name=dialect_name,
         dialect_instructions=dialect_instr,
         script_name=script_name,
         script_instructions=script_instr,
         explanation_language=explanation_lang,
+        corrections_header=corrections_header,
+        no_mistakes_text=no_mistakes_text,
     ) + "\n" + style_instr
 
 
@@ -159,7 +169,7 @@ async def get_tutor_response(
 
 def _extract_serbian_part(text: str) -> str:
     """Extract only the Serbian part of the response (before corrections)."""
-    separators = ["---", "📝 Ispravke", "📝 Исправке", "Ispravke", "Исправке"]
+    separators = ["---", "📝 Ispravke", "📝 Исправке", "Ispravke", "Исправке", "📝 Corrections"]
     result = text
     for sep in separators:
         if sep in result:
