@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 from aiogram import Router, Bot, F
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
@@ -249,7 +250,12 @@ async def handle_voice(message: Message, bot: Bot) -> None:
         try:
             tts_file = await synthesize_speech(tutor_reply)
             audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
-            await message.answer_voice(audio_input)
+            try:
+                await message.answer_voice(audio_input)
+            except TelegramBadRequest:
+                # VOICE_MESSAGES_FORBIDDEN — send as document instead
+                audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
+                await message.answer_document(audio_input)
         except Exception:
             logger.exception("Error synthesizing/sending audio")
 
@@ -290,7 +296,11 @@ async def handle_text(message: Message) -> None:
         try:
             tts_file = await synthesize_speech(tutor_reply)
             audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
-            await message.answer_voice(audio_input)
+            try:
+                await message.answer_voice(audio_input)
+            except TelegramBadRequest:
+                audio_input = FSInputFile(tts_file, filename="tutor_response.ogg")
+                await message.answer_document(audio_input)
         except Exception:
             logger.exception("Error synthesizing/sending audio")
 
