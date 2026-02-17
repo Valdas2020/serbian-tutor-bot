@@ -22,7 +22,7 @@ from keyboards import (
     language_keyboard, script_keyboard, dialect_keyboard,
     style_keyboard, settings_keyboard,
 )
-from services import transcribe_voice, get_tutor_response, synthesize_speech
+from services import transcribe_voice, get_tutor_response, synthesize_speech, transliterate_to_latin
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -266,6 +266,10 @@ async def handle_voice(message: Message, bot: Bot) -> None:
         if not transcription:
             await processing_msg.edit_text(t("error_transcription", lang))
             return
+
+        # Transliterate Whisper output to match user's chosen script
+        if user.script == "latin":
+            transcription = transliterate_to_latin(transcription)
 
         safe_transcription = transcription.replace("_", "\\_").replace("*", "\\*")
         await processing_msg.edit_text(

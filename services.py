@@ -13,6 +13,28 @@ from config import (
 
 logger = logging.getLogger(__name__)
 
+# Serbian Cyrillic ↔ Latin transliteration (1:1 mapping)
+_CYR_TO_LAT = {
+    "А": "A", "Б": "B", "В": "V", "Г": "G", "Д": "D", "Ђ": "Đ",
+    "Е": "E", "Ж": "Ž", "З": "Z", "И": "I", "Ј": "J", "К": "K",
+    "Л": "L", "Љ": "Lj", "М": "M", "Н": "N", "Њ": "Nj", "О": "O",
+    "П": "P", "Р": "R", "С": "S", "Т": "T", "Ћ": "Ć", "У": "U",
+    "Ф": "F", "Х": "H", "Ц": "C", "Ч": "Č", "Џ": "Dž", "Ш": "Š",
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "ђ": "đ",
+    "е": "e", "ж": "ž", "з": "z", "и": "i", "ј": "j", "к": "k",
+    "л": "l", "љ": "lj", "м": "m", "н": "n", "њ": "nj", "о": "o",
+    "п": "p", "р": "r", "с": "s", "т": "t", "ћ": "ć", "у": "u",
+    "ф": "f", "х": "h", "ц": "c", "ч": "č", "џ": "dž", "ш": "š",
+}
+
+
+def transliterate_to_latin(text: str) -> str:
+    """Transliterate Serbian Cyrillic text to Latin script."""
+    result = []
+    for ch in text:
+        result.append(_CYR_TO_LAT.get(ch, ch))
+    return "".join(result)
+
 # RouteLLM/Abacus — for chat completions
 llm_client = AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
 
@@ -38,7 +60,7 @@ Rules:
 - After your main response in Serbian, add a section called "---\\n📝 {corrections_header}" (Corrections).
   In this section, explain any grammar, vocabulary, or pronunciation mistakes the student made.
   Write ALL corrections and explanations ONLY in {explanation_language}. Do NOT use any other language for explanations.
-  Serbian words in the corrections section must also use the chosen script ({script_name}).
+  ALL Serbian words quoted in the corrections section MUST use the chosen script ({script_name}). Never quote Serbian words in a different script.
   If there are no mistakes, write "{no_mistakes_text}"
 - If the transcribed text seems garbled or nonsensical (Whisper errors), try to guess what the student meant and respond accordingly, noting what you think they meant.
 """
@@ -63,11 +85,15 @@ Example: "Добар дан! Како сте? Ја сам ваш наставн�
 NEVER use Latin letters (a-z) for Serbian words. Always use Cyrillic (а-я, ђ, ж, љ, њ, ћ, ч, ш, џ).
 """
 
-SCRIPT_LATIN = """CRITICAL: Write ALL Serbian text in **Latin** script (Latinica).
+SCRIPT_LATIN = """CRITICAL: Write ALL Serbian text in **Latin** script (Latinica) — EVERYWHERE in your response.
 Example: "Dobar dan! Kako ste? Ja sam vaš nastavnik."
 Example Ijekavica: "Đe si, more? Lijepo je danas. Hajdemo na kafu."
 NEVER use Cyrillic letters (а-я) for Serbian words. Always use Latin (a-z, č, ć, đ, š, ž, lj, nj, dž).
-This is extremely important — the student is learning to READ Latin script. Every single Serbian word must be in Latin letters.
+This applies to ALL parts of your response:
+- Main conversational text: Latin only
+- Quoted Serbian words in corrections: Latin only (e.g. "dobro veče" NOT "добро вече")
+- Examples and suggestions: Latin only
+The student is learning to READ Latin script. Every single Serbian word MUST be in Latin letters, with ZERO exceptions.
 """
 
 
