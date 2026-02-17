@@ -7,14 +7,20 @@ TEXTS: dict[str, dict[str, str]] = {
             "Я — ваш репетитор сербского языка.\n"
             "Отправляйте мне голосовые сообщения на сербском, "
             "и я помогу вам с произношением и грамматикой.\n\n"
-            "Для начала выберите язык интерфейса:"
+            "I'm your Serbian language tutor.\n"
+            "Send me voice messages in Serbian, "
+            "and I'll help you with pronunciation and grammar.\n\n"
+            "Выберите язык / Choose language:"
         ),
         "en": (
             "Zdravo! Dobrodošli!\n\n"
             "I'm your Serbian language tutor.\n"
             "Send me voice messages in Serbian, "
             "and I'll help you with pronunciation and grammar.\n\n"
-            "First, choose your interface language:"
+            "Я — ваш репетитор сербского языка.\n"
+            "Отправляйте мне голосовые сообщения на сербском, "
+            "и я помогу вам с произношением и грамматикой.\n\n"
+            "Choose language / Выберите язык:"
         ),
     },
     "choose_language": {
