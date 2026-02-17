@@ -24,9 +24,11 @@ TTS_VOICE = os.getenv("TTS_VOICE", "shimmer")
 
 # Database
 DB_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///serbian_tutor.db")
-# Render gives postgres://, SQLAlchemy needs postgresql+asyncpg://
+# Render gives postgres:// or postgresql://, SQLAlchemy needs postgresql+asyncpg://
 if DB_URL.startswith("postgres://"):
     DB_URL = DB_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DB_URL.startswith("postgresql://"):
+    DB_URL = DB_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 # Admin
 ADMIN_ID = int(os.getenv("ADMIN_ID", "485544391"))
