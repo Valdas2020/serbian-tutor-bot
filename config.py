@@ -19,8 +19,8 @@ if not OPENAI_API_KEY:
 # Models (configurable via env)
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "whisper-1")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "gpt-4o")
-TTS_MODEL = os.getenv("TTS_MODEL", "tts-1")
-TTS_VOICE = os.getenv("TTS_VOICE", "alloy")
+TTS_MODEL = os.getenv("TTS_MODEL", "tts-1-hd")
+TTS_VOICE = os.getenv("TTS_VOICE", "shimmer")
 
 # Database
 DB_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///serbian_tutor.db")
