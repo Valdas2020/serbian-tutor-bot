@@ -59,6 +59,16 @@ async def cmd_help(message: Message) -> None:
     )
 
 
+@router.message(Command("support"))
+async def cmd_support(message: Message) -> None:
+    """Handle /support — show support contact."""
+    user = await get_or_create_user(message.from_user.id)
+    await message.answer(
+        t("support", user.ui_language),
+        parse_mode="HTML",
+    )
+
+
 @router.message(Command("settings"))
 async def cmd_settings(message: Message) -> None:
     """Handle /settings — show current settings."""

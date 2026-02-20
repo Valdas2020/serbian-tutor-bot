@@ -209,6 +209,20 @@ TEXTS: dict[str, dict[str, str]] = {
         "ru": "Изменить язык",
         "en": "Change language",
     },
+    "support": {
+        "ru": (
+            "🆘 <b>Поддержка</b>\n\n"
+            "Если у вас возникли проблемы или вы хотите сообщить об ошибке, "
+            "напишите нам напрямую:\n\n"
+            '👉 <a href="tg://user?id=485544391">Написать в поддержку</a>'
+        ),
+        "en": (
+            "🆘 <b>Support</b>\n\n"
+            "If you have any issues or want to report a bug, "
+            "reach out to us directly:\n\n"
+            '👉 <a href="tg://user?id=485544391">Contact support</a>'
+        ),
+    },
     "send_voice_hint": {
         "ru": "Отправьте мне голосовое сообщение на сербском, и я помогу вам! Также можно отправить текст.",
         "en": "Send me a voice message in Serbian and I'll help you! You can also send text.",
