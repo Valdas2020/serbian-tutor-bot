@@ -94,7 +94,12 @@ async def cmd_admin_stats(message: Message) -> None:
     if message.from_user.id != ADMIN_ID:
         return
 
-    stats = await get_admin_stats()
+    try:
+        stats = await get_admin_stats()
+    except Exception as e:
+        logger.exception("get_admin_stats failed")
+        await message.answer(f"Ошибка при получении статистики: {e}")
+        return
 
     ref_lines = []
     for source, count in stats["ref_stats"]:
@@ -102,16 +107,16 @@ async def cmd_admin_stats(message: Message) -> None:
     ref_text = "\n".join(ref_lines) if ref_lines else "  (нет данных)"
 
     text = (
-        f"📊 *Статистика бота*\n\n"
+        f"📊 Статистика бота\n\n"
         f"👥 Всего юзеров: {stats['total']}\n"
         f"📈 Новых за 24ч: {stats['new_24h']}\n"
         f"📅 Новых за 7 дней: {stats['new_7d']}\n"
         f"⭐ Pro-юзеров: {stats['pro_count']}\n\n"
-        f"📣 *Топ источников:*\n{ref_text}\n\n"
+        f"📣 Топ источников:\n{ref_text}\n\n"
         f"🎤 Голосовых сегодня: {stats['voices_today']}"
     )
 
-    await message.answer(text, parse_mode="Markdown")
+    await message.answer(text)
 
 
 # --- Callbacks: Language ---
