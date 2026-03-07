@@ -58,6 +58,7 @@ async def main() -> None:
         BotCommand(command="settings", description="Settings / Настройки"),
         BotCommand(command="help", description="Help / Справка"),
         BotCommand(command="support", description="Support / Поддержка"),
+        BotCommand(command="collaborate", description="Collaborate / Сотрудничество"),
     ])
 
     logger.info("Webhook cleared, commands registered, starting polling...")

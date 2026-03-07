@@ -309,20 +309,38 @@ TEXTS: dict[str, dict[str, str]] = {
     "support": {
         "ru": (
             "🆘 <b>Поддержка</b>\n\n"
-            "Если у вас возникли проблемы или вы хотите сообщить об ошибке, "
-            "напишите нам напрямую:\n\n"
-            '👉 <a href="tg://user?id=485544391">Написать в поддержку</a>'
+            "Напишите ваш вопрос или опишите ошибку — "
+            "следующее сообщение будет передано нам напрямую."
         ),
         "en": (
             "🆘 <b>Support</b>\n\n"
-            "If you have any issues or want to report a bug, "
-            "reach out to us directly:\n\n"
-            '👉 <a href="tg://user?id=485544391">Contact support</a>'
+            "Write your question or describe the issue — "
+            "your next message will be forwarded to us directly."
         ),
         "de": (
             "🆘 <b>Support</b>\n\n"
-            "Bei Problemen oder Fehlermeldungen, schreib uns direkt:\n\n"
-            '👉 <a href="tg://user?id=485544391">Support kontaktieren</a>'
+            "Schreib deine Frage oder beschreibe das Problem — "
+            "deine nächste Nachricht wird direkt an uns weitergeleitet."
+        ),
+    },
+    "collaborate": {
+        "ru": (
+            "🤝 <b>Сотрудничество</b>\n\n"
+            "Milica AI — некоммерческий проект для экспатов.\n"
+            "Если у вас есть идеи по развитию, предложения по сотрудничеству или рекламе, "
+            "см. актуальные контакты на <a href=\"https://valdas.online\">valdas.online</a>"
+        ),
+        "en": (
+            "🤝 <b>Collaboration</b>\n\n"
+            "Milica AI is a non-commercial project for expats.\n"
+            "If you have ideas, partnership proposals, or advertising inquiries, "
+            "find current contacts at <a href=\"https://valdas.online\">valdas.online</a>"
+        ),
+        "de": (
+            "🤝 <b>Zusammenarbeit</b>\n\n"
+            "Milica AI ist ein nicht-kommerzielles Projekt für Expats.\n"
+            "Wenn du Ideen, Kooperationsvorschläge oder Werbeanfragen hast, "
+            "findest du aktuelle Kontakte auf <a href=\"https://valdas.online\">valdas.online</a>"
         ),
     },
     "send_voice_hint": {

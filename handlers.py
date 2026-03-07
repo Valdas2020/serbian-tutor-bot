@@ -27,6 +27,9 @@ from services import transcribe_voice, get_tutor_response, synthesize_speech, tr
 logger = logging.getLogger(__name__)
 router = Router()
 
+# Users who sent /support and are awaiting their message to forward
+_support_mode: set[int] = set()
+
 
 def _user_configured(user) -> bool:
     """Check if user completed all onboarding steps."""
@@ -38,9 +41,6 @@ def _user_configured(user) -> bool:
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, command: CommandObject) -> None:
-    """Handle /start — welcome and language selection (resets settings).
-    Supports deep links: /start CHURCH -> ref_source='CHURCH'
-    """
     ref_source = command.args or None
     await reset_user_settings(message.from_user.id, ref_source=ref_source)
     await message.answer(
@@ -51,7 +51,6 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("help"))
 async def cmd_help(message: Message) -> None:
-    """Handle /help — show help text."""
     user = await get_or_create_user(message.from_user.id)
     await message.answer(
         t("help", user.ui_language),
@@ -61,17 +60,25 @@ async def cmd_help(message: Message) -> None:
 
 @router.message(Command("support"))
 async def cmd_support(message: Message) -> None:
-    """Handle /support — show support contact."""
     user = await get_or_create_user(message.from_user.id)
+    _support_mode.add(message.from_user.id)
     await message.answer(
         t("support", user.ui_language),
         parse_mode="HTML",
     )
 
 
+@router.message(Command("collaborate"))
+async def cmd_collaborate(message: Message) -> None:
+    user = await get_or_create_user(message.from_user.id)
+    await message.answer(
+        t("collaborate", user.ui_language),
+        parse_mode="HTML",
+    )
+
+
 @router.message(Command("settings"))
 async def cmd_settings(message: Message) -> None:
-    """Handle /settings — show current settings."""
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
@@ -80,16 +87,18 @@ async def cmd_settings(message: Message) -> None:
     style_display = t(f"btn_{user.style}", lang) if user.style else "—"
     lang_display = {"ru": "Русский 🇷🇺", "en": "English 🇬🇧", "de": "Deutsch 🇩🇪"}.get(lang, lang)
 
-    await message.answer(
-        t("settings", lang, dialect=dialect_display, script=script_display, style=style_display, lang=lang_display),
-        parse_mode="Markdown",
-        reply_markup=settings_keyboard(lang),
-    )
+    try:
+        await message.answer(
+            t("settings", lang, dialect=dialect_display, script=script_display, style=style_display, lang=lang_display),
+            reply_markup=settings_keyboard(lang),
+        )
+    except Exception:
+        logger.exception("Error sending settings")
+        await message.answer(t("error_general", lang))
 
 
 @router.message(Command("admin_stats"))
 async def cmd_admin_stats(message: Message) -> None:
-    """Handle /admin_stats — show bot statistics (admin only)."""
     if message.from_user.id != ADMIN_ID:
         return
 
@@ -123,7 +132,6 @@ async def cmd_admin_stats(message: Message) -> None:
 
 @router.callback_query(F.data.startswith("lang:"))
 async def cb_language(callback: CallbackQuery) -> None:
-    """Handle language selection. Onboarding → script. Settings → confirm."""
     lang = callback.data.split(":")[1]
     user = await update_user_language(callback.from_user.id, lang)
 
@@ -145,7 +153,6 @@ async def cb_language(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("script:"))
 async def cb_script(callback: CallbackQuery) -> None:
-    """Handle script selection. Onboarding → dialect. Settings → confirm."""
     script = callback.data.split(":")[1]
     user = await update_user_script(callback.from_user.id, script)
     lang = user.ui_language
@@ -169,7 +176,6 @@ async def cb_script(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("dialect:"))
 async def cb_dialect(callback: CallbackQuery) -> None:
-    """Handle dialect selection. Onboarding → style. Settings → confirm."""
     dialect = callback.data.split(":")[1]
     user = await update_user_dialect(callback.from_user.id, dialect)
     lang = user.ui_language
@@ -193,7 +199,6 @@ async def cb_dialect(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("style:"))
 async def cb_style(callback: CallbackQuery) -> None:
-    """Handle style selection."""
     style = callback.data.split(":")[1]
     user = await update_user_style(callback.from_user.id, style)
     lang = user.ui_language
@@ -201,7 +206,6 @@ async def cb_style(callback: CallbackQuery) -> None:
     key = f"style_{style}"
     await callback.message.edit_text(t(key, lang))
 
-    # After settings change, show hint if fully configured
     if _user_configured(user):
         await callback.message.answer(t("send_voice_hint", lang))
     await callback.answer()
@@ -257,7 +261,6 @@ async def cb_settings_language(callback: CallbackQuery) -> None:
 
 @router.message(F.voice)
 async def handle_voice(message: Message, bot: Bot) -> None:
-    """Handle voice messages: transcribe -> tutor -> TTS."""
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
@@ -281,7 +284,6 @@ async def handle_voice(message: Message, bot: Bot) -> None:
             await processing_msg.edit_text(t("error_transcription", lang))
             return
 
-        # Transliterate Whisper output to match user's chosen script
         if user.script == "latin":
             transcription = transliterate_to_latin(transcription)
 
@@ -296,8 +298,6 @@ async def handle_voice(message: Message, bot: Bot) -> None:
         )
 
         await message.answer(tutor_reply)
-
-        # Log voice interaction
         await log_voice_message(message.from_user.id)
 
         try:
@@ -321,10 +321,26 @@ async def handle_voice(message: Message, bot: Bot) -> None:
 
 
 @router.message(F.text)
-async def handle_text(message: Message) -> None:
-    """Handle plain text messages — treat as Serbian text input or promo code."""
+async def handle_text(message: Message, bot: Bot) -> None:
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
+
+    # Forward message to admin if user is in support mode
+    if message.from_user.id in _support_mode:
+        _support_mode.discard(message.from_user.id)
+        user_info = f"@{message.from_user.username}" if message.from_user.username else f"ID {message.from_user.id}"
+        fwd_text = f"📩 Сообщение в поддержку от {user_info}:\n\n{message.text}"
+        try:
+            await bot.send_message(ADMIN_ID, fwd_text)
+        except Exception:
+            logger.exception("Failed to forward support message to admin")
+        confirm = {
+            "ru": "✅ Ваше сообщение отправлено в поддержку.",
+            "en": "✅ Your message has been sent to support.",
+            "de": "✅ Deine Nachricht wurde an den Support gesendet.",
+        }
+        await message.answer(confirm.get(lang, confirm["en"]))
+        return
 
     # Check for promo code
     code = message.text.strip().upper()
