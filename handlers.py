@@ -75,11 +75,10 @@ async def cmd_settings(message: Message) -> None:
     user = await get_or_create_user(message.from_user.id)
     lang = user.ui_language
 
-    dialect_display = "Екавица 🇷🇸" if user.dialect == "ekavica" else "Ијекавица 🇲🇪" if user.dialect else "—"
-    script_display = "Кириллица 🔤" if user.script == "cyrillic" else "Латиница 🔡" if user.script else "—"
-    style_map = {"formal": "📚 Книжно", "everyday": "🛒 Повседневный", "casual": "🍺 Как в кафане", "beginner": "🐣 Просто"}
-    style_display = style_map.get(user.style, "—")
-    lang_display = "Русский 🇷🇺" if lang == "ru" else "English 🇬🇧"
+    dialect_display = t("btn_ekavica", lang) if user.dialect == "ekavica" else t("btn_ijekavica", lang) if user.dialect else "—"
+    script_display = t("btn_cyrillic", lang) if user.script == "cyrillic" else t("btn_latin", lang) if user.script else "—"
+    style_display = t(f"btn_{user.style}", lang) if user.style else "—"
+    lang_display = {"ru": "Русский 🇷🇺", "en": "English 🇬🇧", "de": "Deutsch 🇩🇪"}.get(lang, lang)
 
     await message.answer(
         t("settings", lang, dialect=dialect_display, script=script_display, style=style_display, lang=lang_display),

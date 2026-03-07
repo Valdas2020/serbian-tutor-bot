@@ -134,7 +134,7 @@ def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: st
     dialect_instr = DIALECT_IJEKAVICA if dialect == "ijekavica" else DIALECT_EKAVICA
     script_name = "Latin (Latinica)" if script == "latin" else "Cyrillic (Ћирилица)"
     script_instr = SCRIPT_LATIN if script == "latin" else SCRIPT_CYRILLIC
-    explanation_lang = "Russian" if ui_language == "ru" else "English"
+    explanation_lang = {"ru": "Russian", "en": "English", "de": "German"}.get(ui_language, "English")
 
     style_map = {"formal": STYLE_FORMAL, "everyday": STYLE_EVERYDAY, "casual": STYLE_CASUAL, "beginner": STYLE_BEGINNER}
     style_instr = style_map.get(style, STYLE_EVERYDAY)
