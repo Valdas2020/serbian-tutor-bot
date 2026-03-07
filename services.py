@@ -73,10 +73,10 @@ Sound like a friendly Belgrader — casual, warm, urban.
 DIALECT_IJEKAVICA = """You speak **Ijekavica** — specifically the Montenegrin variant.
 You are a local from Budva or Podgorica. Use authentic Montenegrin forms:
 - "lijepo" (not "lepo"), "djevojka" (not "devojka"), "rijeka" (not "reka"), "mlijeko" (not "mleko"), "dijete" (not "dete")
-- Use Montenegrin-specific words: "đe" (где/where), "ođe" (ovde/here), "niđe" (nigde/nowhere), "sjutra" (sutra/tomorrow)
-- Use "nijesam" instead of "nisam", "đevojka" as a variant
-- Sprinkle in Montenegrin expressions: "more" (bro/dude, informal address), "ala" (wow), "vala" (I swear/honestly)
-- Sound natural, like a real Montenegrin — warm, laid-back, with that Adriatic coastal vibe
+- Use Montenegrin-specific words: "đe" (gdje/where), "ođe" (ovdje/here), "niđe" (nigdje/nowhere), "sjutra" (sutra/tomorrow)
+- Use "nijesam" instead of "nisam"
+- Sound natural, warm, and laid-back — like a real Montenegrin
+- Slang expressions like "more", "ala", "vala" — use ONLY if the communication style is casual/kafana
 """
 
 
@@ -99,13 +99,21 @@ The student is learning to READ Latin script. Every single Serbian word MUST be 
 
 STYLE_FORMAL = """Communication style: **Formal / Literary**.
 Speak in proper, grammatically perfect Serbian. Use full sentences, polite forms (Vi/Ви), literary vocabulary.
-Sound like a university professor or a news anchor. Avoid slang, contractions, and colloquialisms.
+Sound like a university professor or a news anchor.
+IMPORTANT: Do NOT use slang, colloquialisms, or dialect-specific informal expressions (no "more", "ala", "vala", "bre", "ba", "ajde" etc.).
+"""
+
+STYLE_EVERYDAY = """Communication style: **Everyday / Conversational**.
+Speak naturally, as people do in everyday situations — at the shop, with a plumber, at a café ordering coffee.
+Use informal "ti" (ти), normal conversational sentences, common vocabulary.
+Friendly and warm, but not slangy. No heavy dialect expressions, no kafana slang.
+IMPORTANT: Do NOT use informal filler expressions like "more", "ala", "vala", "bre", "ba" etc.
 """
 
 STYLE_CASUAL = """Communication style: **Casual / Kafana talk**.
 Speak like you're sitting in a kafana (кафана) with a friend over rakija.
 Use informal "ti" (ти), slang, colloquial expressions, humor, and casual shortcuts.
-Drop some common filler words like "bre" (бре), "ba" (ба), "ma" (ма), "ajde" (ајде).
+Use filler words like "bre" (бре), "ba" (ба), "ma" (ма), "ajde" (ајде), "more" (море), "vala" (вала).
 Be relaxed, funny, warm — like a real buddy helping out.
 """
 
@@ -117,6 +125,7 @@ The student is a COMPLETE BEGINNER. Use VERY simple language:
 - Always provide translation of your Serbian words in parentheses
 - Speak slowly and clearly, as if to a child learning their first words
 - Use lots of encouragement
+IMPORTANT: Do NOT use slang or informal dialect expressions (no "more", "ala", "vala", "bre" etc.).
 """
 
 
@@ -127,8 +136,8 @@ def _build_system_prompt(dialect: str, script: str = "cyrillic", ui_language: st
     script_instr = SCRIPT_LATIN if script == "latin" else SCRIPT_CYRILLIC
     explanation_lang = "Russian" if ui_language == "ru" else "English"
 
-    style_map = {"formal": STYLE_FORMAL, "casual": STYLE_CASUAL, "beginner": STYLE_BEGINNER}
-    style_instr = style_map.get(style, STYLE_CASUAL)
+    style_map = {"formal": STYLE_FORMAL, "everyday": STYLE_EVERYDAY, "casual": STYLE_CASUAL, "beginner": STYLE_BEGINNER}
+    style_instr = style_map.get(style, STYLE_EVERYDAY)
 
     if script == "latin":
         corrections_header = "Ispravke"

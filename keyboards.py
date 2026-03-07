@@ -64,6 +64,11 @@ def style_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(
+                    text=t("btn_everyday", lang), callback_data="style:everyday"
+                ),
+            ],
+            [
+                InlineKeyboardButton(
                     text=t("btn_casual", lang), callback_data="style:casual"
                 ),
             ],

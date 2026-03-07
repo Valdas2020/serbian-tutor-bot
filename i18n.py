@@ -83,12 +83,14 @@ TEXTS: dict[str, dict[str, str]] = {
         "ru": (
             "Последний шаг! Как мне с вами общаться?\n\n"
             "📚 *Книжно* — грамотная, литературная речь\n"
+            "🛒 *Повседневный* — обычный язык для магазина, кафе, водопроводчика\n"
             "🍺 *Как в кафане* — живой разговорный язык, сленг\n"
             "🐣 *Просто, как с новичком* — короткие фразы, базовая лексика"
         ),
         "en": (
             "Last step! How should I talk to you?\n\n"
             "📚 *Formal* — proper literary speech\n"
+            "🛒 *Everyday* — natural language for the shop, café, plumber\n"
             "🍺 *Like in a kafana* — casual, slang, street talk\n"
             "🐣 *Simple, like a beginner* — short phrases, basic vocabulary"
         ),
@@ -96,6 +98,10 @@ TEXTS: dict[str, dict[str, str]] = {
     "style_formal": {
         "ru": "Стиль: Книжная речь 📚\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
         "en": "Style: Formal speech 📚\n\nAll set! Send a voice message or text in Serbian.",
+    },
+    "style_everyday": {
+        "ru": "Стиль: Повседневный 🛒\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
+        "en": "Style: Everyday 🛒\n\nAll set! Send a voice message or text in Serbian.",
     },
     "style_casual": {
         "ru": "Стиль: Как в кафане 🍺\n\nВсё настроено! Отправьте голосовое или текст на сербском.",
@@ -184,6 +190,10 @@ TEXTS: dict[str, dict[str, str]] = {
     "btn_formal": {
         "ru": "📚 Книжно",
         "en": "📚 Formal",
+    },
+    "btn_everyday": {
+        "ru": "🛒 Повседневный",
+        "en": "🛒 Everyday",
     },
     "btn_casual": {
         "ru": "🍺 Как в кафане",

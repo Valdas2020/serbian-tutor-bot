@@ -77,7 +77,7 @@ async def cmd_settings(message: Message) -> None:
 
     dialect_display = "Екавица 🇷🇸" if user.dialect == "ekavica" else "Ијекавица 🇲🇪" if user.dialect else "—"
     script_display = "Кириллица 🔤" if user.script == "cyrillic" else "Латиница 🔡" if user.script else "—"
-    style_map = {"formal": "📚 Книжно", "casual": "🍺 Как в кафане", "beginner": "🐣 Просто"}
+    style_map = {"formal": "📚 Книжно", "everyday": "🛒 Повседневный", "casual": "🍺 Как в кафане", "beginner": "🐣 Просто"}
     style_display = style_map.get(user.style, "—")
     lang_display = "Русский 🇷🇺" if lang == "ru" else "English 🇬🇧"
 
