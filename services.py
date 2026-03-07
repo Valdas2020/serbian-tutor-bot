@@ -194,12 +194,20 @@ async def get_tutor_response(
 
 
 def _extract_serbian_part(text: str) -> str:
-    """Extract only the Serbian part of the response (before corrections)."""
-    separators = ["---", "📝 Ispravke", "📝 Исправке", "Ispravke", "Исправке", "📝 Corrections"]
+    """Extract only the Serbian part of the response (before corrections section)."""
+    # Look for corrections header — must be "📝" marker, not a generic "---"
+    separators = [
+        "\n---\n📝",
+        "\n---\n\n📝",
+        "📝 Ispravke",
+        "📝 Исправке",
+        "📝 Corrections",
+    ]
     result = text
     for sep in separators:
         if sep in result:
             result = result.split(sep)[0]
+            break
     return result.strip()
 
 
